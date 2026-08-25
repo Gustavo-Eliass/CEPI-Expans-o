@@ -1,2 +1,2 @@
-# CEPI-Expans-o
+# CEPI-Expansão
 Mudanças na interface padrao do aluno e do responsavel, transformando em uma rede social
