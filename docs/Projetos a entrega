@@ -1,1 +1,49 @@
+ENTREGA PARCIAL
+1. DESCRIÇÃO DO PROBLEMA E PERSONAS “IA-Augmented”
+
+1.1 - Descrição do Problema, Solução e Oportunidade de IA:
+	•	Problema (250 caracteres)
+	•	Solução (250 caracteres)
+	•	Identificar explicitamente onde a IA gera valor na solução do problema (automação, predição ou geração de conteúdo).
+	•	Personas.
+1.2- Cenários de Uso e Casos de Borda (Edge Cases) de IA:
+	•	Identificar cenários de falha, casos críticos de erro.
+1.3- Entrevistas e Validação de Hipóteses: (OPCIONAL)
+	•	Relatório de entrevistas COM HUMANOS e COM AGENTES INTELIGENTES focando:
+	•	Descoberta dos pontos de dor
+	•	Validação do problema;
+	•	Pelo menos uma entrevista com humanos.
+
+2. BACKLOG E ENGENHARIA DE REQUISITOS “AI-FIRST”	
+
+2.1- Backlog Priorizado e Categorizado:
+	•	Épicos;
+	•	Histórias de usuários;
+	•	Detalhamento das tarefas das histórias de usuário
+	•	Descrição dos padrões de uso de ferramentas de IA no projeto.
+2.2- Histórias de Usuário e Critérios de Aceite de IA:
+	•	Definição clara dos critérios de aceitação e como garantir que o resultado das ferramentas de IA está funcionando corretamente.
+
+3. UX/UI PARA INTERFACES INTELIGENTES				
+3.1- Wireframes e Fluxos de Conversação:
+	•	Telas principais focadas em interfaces limpas
+	•	Detalhamento de navegação.
+	•	Telas de processamento / tratamento de erros.
+4. ARQUITETURA DE SOFTWARE E STACK DE DESENVOLVIMENTO
+4.1- Escolha da Stack de Desenvolvimento e IA:
+	•	Detalhamento de stack, detalhando as ferramentas de IA utilizadas (pagas vs gratuitas).
+4.2- Desenho de Arquitetura e Tratamento de Erros:
+	•	Relatório da estrutura de pastas e arquitetura, destacando:
+	•	Integração do Frontend com APIs de inteligência artificial (caso estejam utilizando).
+	•	Como tratar problemas com latência, erros, timeout e indisponibilidade.
+
+5. RELATO DO PROCESSO E ENGENHARIA DE PROMPT (OPCIONAL)
+5.1- Repositório de Prompts (Prompt Ops): Documentação técnica dos prompts:
+	•	Objetivo;
+	•	Contexto informado;
+	•	Saída esperada;
+	•	Problemas encontrados;
+5.2- Relato do processo:
+	•	Descrever o que foi feito durante o projeto até o momento.
+	•	Como trabalharam, qual o impacto que as ferramentas de IA trouxeram para o processo, o que vocês aprenderam, quais foram as dificuldades encontradas e quais ajustes foram feitos para garantir a qualidade final do trabalho a partir dos resultados das ferramentas de IA.
 
