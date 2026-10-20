@@ -1,11 +1,14 @@
+# CEPI-Expansão — Rede social escolar
 
-  # Rede social escolar
+Mudanças na interface padrão do aluno e do responsável, transformando o portal em uma rede social escolar.
 
-  This is a code bundle for Rede social escolar. The original project is available at https://www.figma.com/design/w6tsodW3HjrB2ReOA5bTtp/Rede-social-escolar.
+Este projeto foi criado a partir de um bundle de código. O projeto original está disponível no [Figma](https://www.figma.com/design/w6tsodW3HjrB2ReOA5bTtp/Rede-social-escolar).
 
-  ## Running the code
+## Como executar
 
-  Run `npm i` to install the dependencies.
+Instale as dependências e inicie o servidor de desenvolvimento:
 
-  Run `npm run dev` to start the development server.
-  
+```bash
+npm i
+npm run dev
+```
