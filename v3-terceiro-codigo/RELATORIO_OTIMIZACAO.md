@@ -34,7 +34,7 @@ O JS não mudou porque o Vite já descartava o código não usado; o ganho está
 
 ## Pendências (não feitas nesta versão)
 
-1. **Dividir `App.tsx`** (2.096 linhas) em `types.ts`, `data/`, `utils/`, `components/`, `modals/`, `tabs/`, `coordinator/` e `bot/`.
+1. ~~Dividir `App.tsx`~~ — feito, ver [RELATORIO_COMPONENTES.md](RELATORIO_COMPONENTES.md).
 2. **Cores fixas**: 34 estilos inline repetem cores que já existem no tema (`#0a6b38` 13×, `#c0392b` 9×, `#003087` 7×). Trocar por classes como `bg-primary`.
 3. **`TeacherAvatar` e `Av`** fazem quase o mesmo; podem virar um componente.
 4. **Animações sem `@keyframes`**: `slideUp`, `grow` (barra dos stories) e `slideInLeft` são usadas mas nunca definidas, então não animam.

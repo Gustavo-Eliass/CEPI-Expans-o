@@ -48,16 +48,28 @@ v3-terceiro-codigo/
 ├── tsconfig.json
 ├── vite.config.ts
 └── src/
-    ├── main.tsx                         # Entrada do React
-    ├── app/
-    │   ├── App.tsx                      # Telas, componentes e dados mock
-    │   └── components/figma/ImageWithFallback.tsx
-    ├── imports/image.png                # Logo do CePI
-    └── styles/
-        ├── index.css                    # Agrega os estilos
-        ├── tailwind.css                 # Configuração do Tailwind
-        └── theme.css                    # Cores e tipografia
+    ├── main.tsx                 # Entrada do React
+    ├── imports/image.png        # Logo do CePI
+    ├── styles/                  # index.css, tailwind.css, theme.css
+    └── app/
+        ├── App.tsx              # Raiz: login → coordenação ou app
+        ├── types.ts             # Tipos compartilhados
+        ├── data/                # Dados simulados (trocar pela API no futuro)
+        ├── utils/               # Moderação, gamificação, notas
+        └── components/
+            ├── LoginScreen.tsx
+            ├── AppShell.tsx     # App de aluno/professor/responsável
+            ├── tabs/            # Feed, Shorts, Biblioteca, Agenda, Comunidade, Conta, Progresso, Atividades
+            ├── feed/            # PostCard, StoryViewer
+            ├── modals/          # Comentários, Criar, Denúncia, Notas, Atividade
+            ├── gamification/    # FlameIcon, ExpBar, ExpToast, LevelUpModal
+            ├── coordinator/     # Painel de moderação
+            ├── bot/             # CePiBotPanel
+            ├── common/          # Avatares e etiquetas
+            └── figma/           # ImageWithFallback
 ```
+
+Detalhes de cada arquivo em [RELATORIO_COMPONENTES.md](RELATORIO_COMPONENTES.md).
 
 ## Tema
 
@@ -74,7 +86,8 @@ Veja [RELATORIO_OTIMIZACAO.md](RELATORIO_OTIMIZACAO.md).
 
 ## Próximos passos
 
-- [ ] Dividir `App.tsx` em módulos
+- [x] Dividir `App.tsx` em componentes
+- [ ] Extrair a lógica de EXP e posts do `AppShell` para hooks
 - [ ] Back-end com autenticação e persistência
 - [ ] Moderação de conteúdo no servidor
 - [ ] Upload real de mídias
