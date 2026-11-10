@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Home, Play, BookOpen, Users, User, Plus, X, Bell, Search, Sparkles, CalendarDays, Trophy, ClipboardList } from "lucide-react";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import cepiLogo from "@/imports/image.png";
+import { SidebarDrawer, SidebarToggle, useSidebarDrawer } from "@/app/components/common/SidebarDrawer";
 import { CePiBotPanel } from "@/app/components/bot/CePiBotPanel";
 import { StoryViewer } from "@/app/components/feed/StoryViewer";
 import { ExpBar } from "@/app/components/gamification/ExpBar";
@@ -37,8 +38,8 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
   const [showBot, setShowBot] = useState(false);
   const [showGrades, setShowGrades] = useState(false);
   const [activities, setActivities] = useState<Activity[]>(ACTIVITIES_DATA);
+  const sidebar = useSidebarDrawer();
 
-  // ── EXP / Gamification (students only) ──
   const [exp, setExp] = useState(87);
   const [expHistory, setExpHistory] = useState<ExpEntry[]>([
     { id:1, reason:"Compartilhou story na turma", amount:8, time:"há 10min" },
@@ -113,7 +114,7 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <aside className="flex flex-col border-r border-border bg-card flex-shrink-0 w-56 xl:w-64">
+      <SidebarDrawer open={sidebar.open} close={sidebar.close} resetTimer={sidebar.resetTimer}>
         <div className="flex items-center gap-3 px-4 py-4 border-b border-border">
           <div className="w-10 h-10 rounded-xl overflow-hidden border border-border flex-shrink-0"><ImageWithFallback src={cepiLogo} alt="CEPI" className="w-full h-full object-contain p-0.5" /></div>
           <div className="min-w-0"><p className="font-black text-foreground text-base leading-none">EduLink</p><p className="text-xs text-muted-foreground truncate">CEPI Expansão</p></div>
@@ -142,13 +143,16 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
             )}
           </div>
         </div>
-      </aside>
+      </SidebarDrawer>
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="flex items-center justify-between px-6 py-3 border-b border-border bg-card flex-shrink-0">
-          <div>
-            <h1 className="font-black text-foreground text-lg">{baseNav.find(n=>n.key===tab)?.label ?? tab}</h1>
-            {tab!=="shorts" && <p className="text-xs text-muted-foreground">{user.role==="student" ? `${user.grade} ${user.turma}` : user.role==="guardian" ? `Responsável por ${user.guardianOf}` : "Professor · CEPI Expansão"}</p>}
+          <div className="flex items-center gap-3">
+            <SidebarToggle open={sidebar.open} toggle={sidebar.toggle} />
+            <div>
+              <h1 className="font-black text-foreground text-lg">{baseNav.find(n=>n.key===tab)?.label ?? tab}</h1>
+              {tab!=="shorts" && <p className="text-xs text-muted-foreground">{user.role==="student" ? `${user.grade} ${user.turma}` : user.role==="guardian" ? `Responsável por ${user.guardianOf}` : "Professor · CEPI Expansão"}</p>}
+            </div>
           </div>
           <div className="flex items-center gap-3">
             {isStudent && (
