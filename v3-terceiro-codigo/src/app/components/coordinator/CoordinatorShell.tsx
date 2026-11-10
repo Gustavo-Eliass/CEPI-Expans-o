@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X, Bell, Eye, LogOut, Sparkles, Flag, BarChart2, Zap } from "lucide-react";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import cepiLogo from "@/imports/image.png";
+import { SidebarDrawer, SidebarToggle, useSidebarDrawer } from "@/app/components/common/SidebarDrawer";
 import { CePiBotPanel } from "@/app/components/bot/CePiBotPanel";
 import { CoordAIDecided } from "@/app/components/coordinator/CoordAIDecided";
 import { CoordAIFlagged } from "@/app/components/coordinator/CoordAIFlagged";
@@ -16,6 +17,7 @@ export function CoordinatorShell({ user, onLogout }: { user:AppUser; onLogout:()
   const [aiReports, setAiReports] = useState<ReportItem[]>(COORD_AI_FLAGGED_INIT);
   const [aiDecided, setAiDecided] = useState<AIDecidedItem[]>(COORD_AI_DECIDED_INIT);
   const [showBot, setShowBot] = useState(false);
+  const sidebar = useSidebarDrawer();
   const ini = user.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
 
   const navItems: { key:CoordTab; Icon:React.ElementType; label:string; badge?:number }[] = [
@@ -27,7 +29,7 @@ export function CoordinatorShell({ user, onLogout }: { user:AppUser; onLogout:()
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <aside className="flex flex-col border-r border-border bg-card flex-shrink-0 w-56 xl:w-64">
+      <SidebarDrawer open={sidebar.open} close={sidebar.close} resetTimer={sidebar.resetTimer}>
         <div className="flex items-center gap-3 px-4 py-4 border-b border-border">
           <div className="w-10 h-10 rounded-xl overflow-hidden border border-border flex-shrink-0"><ImageWithFallback src={cepiLogo} alt="CEPI" className="w-full h-full object-contain p-0.5" /></div>
           <div className="min-w-0"><p className="font-black text-foreground text-base leading-none">EduLink</p><p className="text-xs text-muted-foreground truncate">Coordenação</p></div>
@@ -51,11 +53,11 @@ export function CoordinatorShell({ user, onLogout }: { user:AppUser; onLogout:()
             <button onClick={onLogout} title="Sair"><LogOut className="w-4 h-4 text-muted-foreground" /></button>
           </div>
         </div>
-      </aside>
+      </SidebarDrawer>
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="flex items-center justify-between px-6 py-3 border-b border-border bg-card flex-shrink-0">
-          <div><h1 className="font-black text-foreground text-lg">{navItems.find(n=>n.key===tab)?.label}</h1><p className="text-xs text-muted-foreground">Colégio CEPI Expansão · Painel de moderação</p></div>
+          <div className="flex items-center gap-3"><SidebarToggle open={sidebar.open} toggle={sidebar.toggle} /><div><h1 className="font-black text-foreground text-lg">{navItems.find(n=>n.key===tab)?.label}</h1><p className="text-xs text-muted-foreground">Colégio CEPI Expansão · Painel de moderação</p></div></div>
           <button className="relative w-9 h-9 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80"><Bell className="w-5 h-5 text-muted-foreground" /></button>
         </header>
         <div className="flex-1 overflow-hidden flex">
