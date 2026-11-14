@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import { Home, Play, BookOpen, Users, User, Plus, X, Bell, Search, Sparkles, CalendarDays, Trophy, ClipboardList } from "lucide-react";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import cepiLogo from "@/imports/image.png";
-import { SidebarDrawer, SidebarToggle, useSidebarDrawer } from "@/app/components/common/SidebarDrawer";
 import { CePiBotPanel } from "@/app/components/bot/CePiBotPanel";
 import { StoryViewer } from "@/app/components/feed/StoryViewer";
 import { ExpBar } from "@/app/components/gamification/ExpBar";
@@ -38,7 +37,6 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
   const [showBot, setShowBot] = useState(false);
   const [showGrades, setShowGrades] = useState(false);
   const [activities, setActivities] = useState<Activity[]>(ACTIVITIES_DATA);
-  const sidebar = useSidebarDrawer();
 
   const [exp, setExp] = useState(87);
   const [expHistory, setExpHistory] = useState<ExpEntry[]>([
@@ -113,8 +111,11 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
   ];
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <SidebarDrawer open={sidebar.open} close={sidebar.close} resetTimer={sidebar.resetTimer}>
+
+    <div className="flex h-dvh min-h-0 overflow-hidden bg-background pt-safe">
+      <aside className="hidden md:flex flex-col border-r border-border bg-card flex-shrink-0 w-56 xl:w-64">
+
+
         <div className="flex items-center gap-3 px-4 py-4 border-b border-border">
           <div className="w-10 h-10 rounded-xl overflow-hidden border border-border flex-shrink-0"><ImageWithFallback src={cepiLogo} alt="CEPI" className="w-full h-full object-contain p-0.5" /></div>
           <div className="min-w-0"><p className="font-black text-foreground text-base leading-none">EduLink</p><p className="text-xs text-muted-foreground truncate">CEPI Expansão</p></div>
@@ -143,16 +144,13 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
             )}
           </div>
         </div>
-      </SidebarDrawer>
+      </aside>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="flex items-center justify-between px-6 py-3 border-b border-border bg-card flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <SidebarToggle open={sidebar.open} toggle={sidebar.toggle} />
-            <div>
-              <h1 className="font-black text-foreground text-lg">{baseNav.find(n=>n.key===tab)?.label ?? tab}</h1>
-              {tab!=="shorts" && <p className="text-xs text-muted-foreground">{user.role==="student" ? `${user.grade} ${user.turma}` : user.role==="guardian" ? `Responsável por ${user.guardianOf}` : "Professor · CEPI Expansão"}</p>}
-            </div>
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="flex flex-shrink-0 items-center justify-between gap-3 border-b border-border bg-card px-4 py-3 sm:px-6">
+          <div>
+            <h1 className="truncate font-black text-foreground text-lg">{baseNav.find(n=>n.key===tab)?.label ?? tab}</h1>
+            {tab!=="shorts" && <p className="hidden text-xs text-muted-foreground sm:block">{user.role==="student" ? `${user.grade} ${user.turma}` : user.role==="guardian" ? `Responsável por ${user.guardianOf}` : "Professor · CEPI Expansão"}</p>}
           </div>
           <div className="flex items-center gap-3">
             {isStudent && (
@@ -167,7 +165,7 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
             <button className="relative w-9 h-9 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80"><Bell className="w-5 h-5 text-muted-foreground" /><span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full border-2 border-card" /></button>
           </div>
         </header>
-        <div className="flex-1 overflow-hidden flex">
+        <div className="flex min-h-0 flex-1 overflow-hidden">
           {tab==="feed"       && <FeedTab user={user} posts={posts} stories={stories} onLike={handleLike} onComment={setCommentPost} onStory={handleStory} onReport={setReportPost} onReportStory={setReportStory} onGainExp={gainExp} />}
           {tab==="shorts"     && <ShortsTab role={user.role} />}
           {tab==="library"    && <LibraryTab user={user} onGainExp={gainExp} />}
@@ -177,9 +175,34 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
           {tab==="progress"   && <ProgressTab exp={exp} expHistory={expHistory} user={user} />}
           {tab==="account"    && <AccountTab user={user} onLogout={onLogout} onShowGrades={() => setShowGrades(true)} />}
         </div>
+        <nav aria-label="Navegação principal" className="flex flex-shrink-0 gap-1 overflow-x-auto border-t border-border bg-card px-2 pb-safe md:hidden">
+          {baseNav.map(({ key, Icon, label, badge }) => {
+            const active = tab===key;
+            return (
+              <button
+                key={key}
+                onClick={() => setTab(key)}
+                aria-current={active ? "page" : undefined}
+                className={`relative flex min-h-16 min-w-[4.5rem] flex-none flex-col items-center justify-center gap-1 px-2 py-2 text-center text-[10px] font-semibold leading-tight ${active ? "text-primary" : "text-muted-foreground"}`}
+              >
+                <span className="relative">
+                  <Icon className="h-5 w-5" />
+                  {badge && badge!=="0" && <span className="absolute -right-2 -top-2 min-w-4 rounded-full bg-primary px-1 text-[9px] leading-4 text-white">{badge}</span>}
+                </span>
+                <span className="whitespace-nowrap">{label}</span>
+              </button>
+            );
+          })}
+          {isTeacher && (
+            <button onClick={() => setShowCreate(true)} className="flex min-h-16 min-w-[4.5rem] flex-none flex-col items-center justify-center gap-1 px-2 py-2 text-center text-[10px] font-semibold leading-tight text-muted-foreground">
+              <Plus className="h-5 w-5" />
+              <span className="whitespace-nowrap">Criar</span>
+            </button>
+          )}
+        </nav>
       </div>
 
-      <button onClick={() => setShowBot(b=>!b)} className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-xl hover:bg-[#085a30] transition-all hover:scale-105">
+      <button onClick={() => setShowBot(b=>!b)} aria-label={showBot ? "Fechar CePiBot" : "Abrir CePiBot"} className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary shadow-xl transition-all hover:scale-105 hover:bg-[#085a30] md:bottom-6 md:right-6">
         {showBot ? <X className="w-6 h-6 text-white" /> : <Sparkles className="w-6 h-6 text-white" />}
       </button>
       {showBot && <CePiBotPanel onClose={() => setShowBot(false)} user={user} />}

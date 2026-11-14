@@ -31,7 +31,7 @@ export function CePiBotPanel({ onClose, user }: { onClose:()=>void; user:AppUser
   const nextQ = () => { setChosen(null); setShowExp(false); setQuizIdx(i => Math.min(QUIZ_QUESTIONS.length-1, i+1)); };
 
   return (
-    <div className="fixed bottom-24 right-6 z-50 w-80 bg-card border border-border rounded-3xl shadow-2xl flex flex-col overflow-hidden" style={{ height:490 }}>
+    <div className="fixed bottom-[calc(9rem+env(safe-area-inset-bottom))] right-4 z-50 flex h-[min(490px,calc(100dvh-11rem))] w-[calc(100vw-2rem)] max-w-80 flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-2xl md:bottom-24 md:right-6 md:h-[490px]">
       <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-primary flex-shrink-0">
         <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center"><Bot className="w-5 h-5 text-white" /></div>
         <div className="flex-1">
