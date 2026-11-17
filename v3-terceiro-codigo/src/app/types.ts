@@ -46,3 +46,15 @@ export type LibrarySubject = { col:string; bg:string; icon:string; bimesters:{ n
 export type BotMode = "chat" | "quiz";
 
 export type BotMsg = { id:number; me:boolean; text:string; source?:string };
+
+export type NotificationKind = "post" | "activity" | "agenda" | "grade" | "level";
+
+export interface AppNotification {
+  id: number;
+  kind: NotificationKind;
+  title: string;
+  message: string;
+  time: string;
+  read: boolean;
+  goesTo?: Tab;
+}

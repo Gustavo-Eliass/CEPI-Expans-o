@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { X, Bell, Eye, LogOut, Sparkles, Flag, BarChart2, Zap } from "lucide-react";
+import { X, Eye, LogOut, Sparkles, Flag, BarChart2, Zap } from "lucide-react";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import cepiLogo from "@/imports/image.png";
+import { NotificationsBell } from "@/app/components/notifications/NotificationsBell";
+import { COORDINATOR_NOTIFICATIONS } from "@/app/data/notifications";
 import { CePiBotPanel } from "@/app/components/bot/CePiBotPanel";
 import { CoordAIDecided } from "@/app/components/coordinator/CoordAIDecided";
 import { CoordAIFlagged } from "@/app/components/coordinator/CoordAIFlagged";
@@ -16,6 +18,7 @@ export function CoordinatorShell({ user, onLogout }: { user:AppUser; onLogout:()
   const [aiReports, setAiReports] = useState<ReportItem[]>(COORD_AI_FLAGGED_INIT);
   const [aiDecided, setAiDecided] = useState<AIDecidedItem[]>(COORD_AI_DECIDED_INIT);
   const [showBot, setShowBot] = useState(false);
+  const [notifications, setNotifications] = useState(COORDINATOR_NOTIFICATIONS);
   const ini = user.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
 
   const navItems: { key:CoordTab; Icon:React.ElementType; label:string; badge?:number }[] = [
@@ -56,7 +59,7 @@ export function CoordinatorShell({ user, onLogout }: { user:AppUser; onLogout:()
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <header className="flex flex-shrink-0 items-center justify-between gap-3 border-b border-border bg-card px-4 py-3 sm:px-6">
           <div className="min-w-0"><h1 className="truncate font-black text-foreground text-lg">{navItems.find(n=>n.key===tab)?.label}</h1><p className="hidden text-xs text-muted-foreground sm:block">Colégio CEPI Expansão · Painel de moderação</p></div>
-          <button className="relative w-9 h-9 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80"><Bell className="w-5 h-5 text-muted-foreground" /></button>
+          <NotificationsBell notifications={notifications} onChange={setNotifications} />
         </header>
         <div className="flex min-h-0 flex-1 overflow-hidden">
           {tab==="dashboard"  && <CoordDashboard reports={reports} aiReports={aiReports} />}

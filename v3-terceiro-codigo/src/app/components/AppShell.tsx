@@ -1,7 +1,9 @@
 import { useState, useRef } from "react";
-import { Home, Play, BookOpen, Users, User, Plus, X, Bell, Search, Sparkles, CalendarDays, Trophy, ClipboardList } from "lucide-react";
+import { Home, Play, BookOpen, Users, User, Plus, X, Search, Sparkles, CalendarDays, Trophy, ClipboardList } from "lucide-react";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import cepiLogo from "@/imports/image.png";
+import { NotificationsBell } from "@/app/components/notifications/NotificationsBell";
+import { STUDENT_NOTIFICATIONS } from "@/app/data/notifications";
 import { CePiBotPanel } from "@/app/components/bot/CePiBotPanel";
 import { StoryViewer } from "@/app/components/feed/StoryViewer";
 import { ExpBar } from "@/app/components/gamification/ExpBar";
@@ -37,6 +39,7 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
   const [showBot, setShowBot] = useState(false);
   const [showGrades, setShowGrades] = useState(false);
   const [activities, setActivities] = useState<Activity[]>(ACTIVITIES_DATA);
+  const [notifications, setNotifications] = useState(STUDENT_NOTIFICATIONS);
 
   const [exp, setExp] = useState(87);
   const [expHistory, setExpHistory] = useState<ExpEntry[]>([
@@ -135,7 +138,6 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
             <div className="flex items-center gap-2">
               <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold flex-shrink-0">{ini}</div>
               <div className="flex-1 min-w-0"><p className="text-sm font-bold text-foreground truncate">{isTeacher?"Prof. ":""}{user.name.split(" ")[0]}</p><p className="text-xs text-muted-foreground">{user.role==="guardian" ? `Resp. por ${user.guardianOf}` : user.role==="student" ? `${user.grade} ${user.turma}` : "Professor"}</p></div>
-              <Bell className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             </div>
             {isStudent && (
               <div className="pl-0.5">
@@ -162,7 +164,7 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
                 <span className="text-xs font-black text-foreground">{exp}</span>
               </button>
             )}
-            <button className="relative w-9 h-9 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80"><Bell className="w-5 h-5 text-muted-foreground" /><span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full border-2 border-card" /></button>
+            <NotificationsBell notifications={notifications} onChange={setNotifications} onNavigate={setTab} />
           </div>
         </header>
         <div className="flex min-h-0 flex-1 overflow-hidden">
