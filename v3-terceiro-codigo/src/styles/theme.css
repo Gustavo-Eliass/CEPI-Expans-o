@@ -149,4 +149,11 @@
   .pr-safe { padding-right: env(safe-area-inset-right); }
 
   @keyframes slideInLeft { from { opacity:0; transform:translateX(-16px); } to { opacity:1; transform:none; } }
+  .firework-icon { overflow: visible; transform-origin: center; animation: firework-pop 2.8s ease-in-out infinite; }
+  .firework-icon-locked { animation: none; }
+  @keyframes firework-pop {
+    0%, 100% { transform: scale(1); }
+    48% { transform: scale(1.06); }
+    56% { transform: scale(1); }
+  }
 }

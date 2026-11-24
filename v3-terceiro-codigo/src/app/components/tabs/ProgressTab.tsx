@@ -45,22 +45,36 @@ export function ProgressTab({ exp, expHistory, user }: { exp:number; expHistory:
         {/* Journey map */}
         <div className="bg-card border border-border rounded-2xl p-5">
           <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-4">Jornada dos Focos</p>
-          <div className="flex items-center justify-between gap-1">
-            {FIRE_LEVELS.map((fl, i) => {
-              const reached = exp >= fl.minExp;
-              const isCurrent = fl.level === lvl.level;
-              return (
-                <div key={fl.level} className="flex-1 flex flex-col items-center gap-1.5">
-                  <div className={`relative rounded-2xl p-2 transition-all ${isCurrent ? "ring-2 ring-offset-1" : ""} ${reached ? "" : "opacity-30"}`}
-                    style={isCurrent ? { "--tw-ring-color":fl.color, backgroundColor:fl.bg } as React.CSSProperties : reached ? { backgroundColor:fl.bg } : { backgroundColor:"#f3f4f6" }}>
-                    <FlameIcon level={fl.level} size={28} />
-                    {isCurrent && <div className="absolute -top-1 -right-1 w-4 h-4 bg-foreground rounded-full flex items-center justify-center"><Check className="w-2.5 h-2.5 text-background" /></div>}
-                  </div>
-                  <span className="text-[10px] font-bold text-center leading-tight" style={{ color:reached ? fl.color : "#9ca3af" }}>{fl.name.replace("Fogo ","")}</span>
-                  {i < FIRE_LEVELS.length - 1 && <div className="absolute" />}
-                </div>
-              );
-            })}
+          <div className="overflow-x-auto pb-2 -mx-1 px-1">
+            <div className="relative min-w-[520px]">
+              {/* Linha de progresso conectando os seis foguinhos */}
+              <div className="absolute left-[8.33%] right-[8.33%] top-[25px] h-1 rounded-full bg-muted" />
+              <div
+                className="absolute left-[8.33%] top-[25px] h-1 rounded-full transition-all duration-700"
+                style={{ width:`${Math.max(0, Math.min(100, ((lvl.level - 1 + pct / 100) / FIRE_LEVELS.length) * 83.34))}%`, backgroundColor:lvl.color }}
+              />
+              <div className="relative flex items-start justify-between gap-1">
+                {FIRE_LEVELS.map(fl => {
+                  const reached = exp >= fl.minExp;
+                  const isCurrent = fl.level === lvl.level;
+                  return (
+                    <div key={fl.level} className="flex flex-1 flex-col items-center gap-1.5">
+                      <div
+                        className={`relative z-10 rounded-2xl p-2 transition-all ${isCurrent ? "ring-2 ring-offset-1" : ""}`}
+                        style={isCurrent
+                          ? { "--tw-ring-color":fl.color, backgroundColor:fl.bg } as React.CSSProperties
+                          : reached ? { backgroundColor:fl.bg } : { backgroundColor:"#f3f4f6" }}
+                      >
+                        <FlameIcon level={reached ? fl.level : 0} size={28} />
+                        {isCurrent && <div className="absolute -top-1 -right-1 w-4 h-4 bg-foreground rounded-full flex items-center justify-center"><Check className="w-2.5 h-2.5 text-background" /></div>}
+                      </div>
+                      <span className="text-[10px] font-bold text-center leading-tight" style={{ color:reached ? fl.color : "#9ca3af" }}>{fl.name.replace("Fogo ","")}</span>
+                      <span className="text-[9px] text-muted-foreground">{fl.minExp} EXP</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
 

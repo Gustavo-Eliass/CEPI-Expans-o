@@ -1,43 +1,113 @@
-export function FlameIcon({ level, size = 32 }: { level:number; size?:number }) {
-  const cfgs = [
-    { c1:"#9ca3af", c2:"#6b7280", c3:"#d1d5db", glow:"none" },
-    { c1:"#ef4444", c2:"#f97316", c3:"#fde047", glow:"rgba(249,115,22,0.55)" },
-    { c1:"#2563eb", c2:"#3b82f6", c3:"#93c5fd", glow:"rgba(59,130,246,0.6)" },
-    { c1:"#7c3aed", c2:"#a855f7", c3:"#e879f9", glow:"rgba(168,85,247,0.6)" },
-    { c1:"#15803d", c2:"#22c55e", c3:"#86efac", glow:"rgba(34,197,94,0.6)" },
-    { c1:"#be185d", c2:"#ec4899", c3:"#fda4af", glow:"rgba(236,72,153,0.6)" },
-    { c1:"#d97706", c2:"#fbbf24", c3:"#fef3c7", glow:"rgba(251,191,36,0.8)" },
-  ];
-  const cfg = cfgs[Math.max(0, Math.min(level, 6))];
-  const gid = `fg${level}`;
-  const igh = `fgh${level}`;
-  const h = Math.round(size * 1.2);
+import chamaLaranja from "@/app/assets/gamification/chama-laranja.png";
+import chamaAzul from "@/app/assets/gamification/chama-azul.png";
+import chamaVerde from "@/app/assets/gamification/chama-verde.png";
+import chamaRosa from "@/app/assets/gamification/chama-rosa.png";
+import chamaRoxo from "@/app/assets/gamification/chama-roxo.png";
+
+type FlameIconProps = { level: number; size?: number };
+
+// O nível 0 representa um fogo ainda não desbloqueado (cinza).
+// Os níveis 1–6 seguem as cores definidas em FIRE_LEVELS.
+const FIRE_STYLES = [
+  { inner: "#d1d5db", middle: "#9ca3af", outer: "#6b7280", glow: "none" },
+  { inner: "#fff7ed", middle: "#f97316", outer: "#c2410c", glow: "rgba(249,115,22,.48)" },
+  { inner: "#eff6ff", middle: "#3b82f6", outer: "#1d4ed8", glow: "rgba(59,130,246,.5)" },
+  { inner: "#f0fdf4", middle: "#22c55e", outer: "#15803d", glow: "rgba(34,197,94,.48)" },
+  { inner: "#fdf2f8", middle: "#ec4899", outer: "#be185d", glow: "rgba(236,72,153,.5)" },
+  { inner: "#faf5ff", middle: "#a855f7", outer: "#7e22ce", glow: "rgba(168,85,247,.5)" },
+  { inner: "#fffbeb", middle: "#f59e0b", outer: "#b45309", glow: "rgba(245,158,11,.58)" },
+];
+
+// Raios alternados criam uma silhueta de explosão, em vez de uma chama.
+const RAYS = [
+  "M32 3 L32 13", "M32 51 L32 61", "M3 32 L13 32", "M51 32 L61 32",
+  "M11.5 11.5 L18.5 18.5", "M45.5 45.5 L52.5 52.5",
+  "M52.5 11.5 L45.5 18.5", "M18.5 45.5 L11.5 52.5",
+  "M22 5 L25 14", "M42 50 L45 59", "M5 22 L14 25", "M50 39 L59 42",
+  "M42 5 L39 14", "M22 50 L19 59", "M59 22 L50 25", "M14 39 L5 42",
+];
+
+export function FlameIcon({ level, size = 32 }: FlameIconProps) {
+  const safeLevel = Math.max(0, Math.min(Math.round(level), FIRE_STYLES.length - 1));
+  const cfg = FIRE_STYLES[safeLevel];
+  const gradientId = `firework-gradient-${safeLevel}`;
+  const glowId = `firework-glow-${safeLevel}`;
+  const isLocked = safeLevel === 0;
+  const flameImages = [null, chamaLaranja, chamaAzul, chamaVerde, chamaRosa, chamaRoxo];
+  const suppliedImage = flameImages[safeLevel];
+
+  if (suppliedImage) {
+    return (
+      <img
+        src={suppliedImage}
+        width={size}
+        height={size}
+        alt={`Foguinho ${["", "laranja", "azul", "verde", "rosa", "roxo"][safeLevel]}`}
+        className="firework-icon object-contain shrink-0"
+        style={{
+          width: size,
+          height: size,
+          filter: `drop-shadow(0 0 ${Math.max(2, size / 9)}px ${cfg.glow})`,
+        }}
+        draggable={false}
+      />
+    );
+  }
+
   return (
-    <svg width={size} height={h} viewBox="0 0 32 38" fill="none"
-      style={cfg.glow !== "none" ? { filter:`drop-shadow(0 0 ${Math.round(size/5)}px ${cfg.glow})` } : undefined}>
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      role="img"
+      aria-label={isLocked ? "Foguinho não desbloqueado" : `Foguinho nível ${safeLevel}`}
+      className={isLocked ? "firework-icon firework-icon-locked" : "firework-icon"}
+      style={!isLocked ? { filter: `drop-shadow(0 0 ${Math.max(2, size / 9)}px ${cfg.glow})` } : undefined}
+    >
       <defs>
-        <linearGradient id={gid} x1="16" y1="2" x2="16" y2="36" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor={cfg.c3} />
-          <stop offset="45%" stopColor={cfg.c2} />
-          <stop offset="100%" stopColor={cfg.c1} />
-        </linearGradient>
-        <linearGradient id={igh} x1="16" y1="14" x2="16" y2="34" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="white" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="white" stopOpacity="0" />
-        </linearGradient>
+        <radialGradient id={gradientId} cx="32" cy="32" r="24" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor={cfg.inner} />
+          <stop offset="48%" stopColor={cfg.middle} />
+          <stop offset="100%" stopColor={cfg.outer} />
+        </radialGradient>
+        <radialGradient id={glowId} cx="32" cy="32" r="22" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor={cfg.inner} stopOpacity=".95" />
+          <stop offset="100%" stopColor={cfg.middle} stopOpacity="0" />
+        </radialGradient>
       </defs>
-      <path d="M16 36C10 36 6 31.5 6 26C6 19 11 12 16 2C21 12 26 19 26 26C26 31.5 22 36 16 36Z" fill={`url(#${gid})`} />
-      <path d="M16 36C13 36 10 33 10 30C10 25 13 20 16 12C19 20 22 25 22 30C22 33 19 36 16 36Z" fill={`url(#${igh})`} />
-      <ellipse cx="13.5" cy="26" rx="2" ry="5" fill="white" fillOpacity="0.28" transform="rotate(-15 13.5 26)" />
-      {level === 6 && (<>
-        <circle cx="7" cy="14" r="1.5" fill={cfg.c3} opacity="0.9" />
-        <circle cx="25" cy="11" r="1.1" fill={cfg.c3} opacity="0.8" />
-        <circle cx="5" cy="27" r="1.1" fill={cfg.c3} opacity="0.7" />
-        <circle cx="27" cy="24" r="1.5" fill={cfg.c3} opacity="0.8" />
-        <circle cx="16" cy="1" r="1.2" fill={cfg.c3} opacity="0.9" />
-        <path d="M9 8L11 6L13 8L11 10Z" fill={cfg.c3} opacity="0.7" />
-        <path d="M21 10L23 8L25 10L23 12Z" fill={cfg.c3} opacity="0.7" />
-      </>)}
+
+      {/* Brilho suave atrás da explosão */}
+      <circle cx="32" cy="32" r="21" fill={`url(#${glowId})`} opacity={isLocked ? 0.12 : 0.42} />
+
+      {/* Raios principais e secundários */}
+      <g stroke={cfg.middle} strokeWidth="3.2" strokeLinecap="round" opacity=".96">
+        {RAYS.slice(0, 8).map((ray, index) => <path key={`ray-main-${index}`} d={ray} />)}
+      </g>
+      <g stroke={cfg.inner} strokeWidth="2" strokeLinecap="round" opacity=".9">
+        {RAYS.slice(8).map((ray, index) => <path key={`ray-small-${index}`} d={ray} />)}
+      </g>
+
+      {/* Pontas luminosas */}
+      <g fill={cfg.middle}>
+        <path d="M32 8 L35 16 L32 14 L29 16 Z" />
+        <path d="M32 56 L35 48 L32 50 L29 48 Z" />
+        <path d="M8 32 L16 29 L14 32 L16 35 Z" />
+        <path d="M56 32 L48 29 L50 32 L48 35 Z" />
+      </g>
+
+      {/* Núcleo em estrela: mantém o desenho reconhecível mesmo pequeno */}
+      <path d="M32 17 L36 27 L47 32 L36 37 L32 47 L28 37 L17 32 L28 27 Z" fill={`url(#${gradientId})`} stroke={cfg.inner} strokeWidth="1.4" />
+      <circle cx="32" cy="32" r="5.2" fill={cfg.inner} />
+      <circle cx="32" cy="32" r="2.2" fill="white" opacity=".95" />
+
+      {/* Partículas */}
+      <g fill={cfg.inner}>
+        <circle cx="13" cy="15" r="1.8" />
+        <circle cx="51" cy="14" r="1.5" />
+        <circle cx="12" cy="49" r="1.5" />
+        <circle cx="52" cy="49" r="1.8" />
+      </g>
     </svg>
   );
 }

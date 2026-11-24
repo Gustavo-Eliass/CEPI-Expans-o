@@ -1,10 +1,11 @@
 export const FIRE_LEVELS = [
-  { level:1, name:"Fogo Normal", color:"#f97316", bg:"#fff7ed", minExp:0,    nextExp:100 },
-  { level:2, name:"Fogo Azul",   color:"#3b82f6", bg:"#eff6ff", minExp:100,  nextExp:250 },
-  { level:3, name:"Fogo Roxo",   color:"#a855f7", bg:"#faf5ff", minExp:250,  nextExp:500 },
-  { level:4, name:"Fogo Verde",  color:"#22c55e", bg:"#f0fdf4", minExp:500,  nextExp:900 },
-  { level:5, name:"Fogo Rosa",   color:"#ec4899", bg:"#fdf2f8", minExp:900,  nextExp:1500 },
-  { level:6, name:"Fogo Dourado",color:"#f59e0b", bg:"#fffbeb", minExp:1500, nextExp:Infinity },
+  { level:1, name:"Fogo Laranja", color:"#f97316", bg:"#fff7ed", minExp:0,    nextExp:100 },
+  { level:2, name:"Fogo Azul",    color:"#3b82f6", bg:"#eff6ff", minExp:100,  nextExp:250 },
+  { level:3, name:"Fogo Verde",   color:"#22c55e", bg:"#f0fdf4", minExp:250,  nextExp:500 },
+  { level:4, name:"Fogo Rosa",    color:"#ec4899", bg:"#fdf2f8", minExp:500,  nextExp:900 },
+  { level:5, name:"Fogo Roxo",    color:"#a855f7", bg:"#faf5ff", minExp:900,  nextExp:1500 },
+  // Mantido para não remover o nível máximo que já existia no sistema.
+  { level:6, name:"Fogo Dourado", color:"#f59e0b", bg:"#fffbeb", minExp:1500, nextExp:Infinity },
 ];
 
 export function getFireLevel(exp:number) {
