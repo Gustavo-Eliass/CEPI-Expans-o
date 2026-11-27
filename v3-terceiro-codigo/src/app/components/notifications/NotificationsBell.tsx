@@ -1,12 +1,12 @@
 import { Bell } from "lucide-react";
 import { NotificationsPanel } from "@/app/components/notifications/NotificationsPanel";
 import { useDropdown } from "@/app/hooks/useDropdown";
-import type { AppNotification, Tab } from "@/app/types";
+import type { AppNotification, NotificationTarget } from "@/app/types";
 
 export function NotificationsBell({ notifications, onChange, onNavigate }: {
   notifications: AppNotification[];
   onChange: (notifications: AppNotification[]) => void;
-  onNavigate?: (tab: Tab) => void;
+  onNavigate?: (target: NotificationTarget) => void;
 }) {
   const panel = useDropdown<HTMLDivElement>();
   const unreadCount = notifications.filter(n => !n.read).length;

@@ -3,7 +3,7 @@ import { Home, Play, BookOpen, Users, User, Plus, X, Search, Sparkles, CalendarD
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import cepiLogo from "@/imports/image.png";
 import { NotificationsBell } from "@/app/components/notifications/NotificationsBell";
-import { STUDENT_NOTIFICATIONS } from "@/app/data/notifications";
+import { NOTIFICATIONS_BY_ROLE } from "@/app/data/notifications";
 import { CePiBotPanel } from "@/app/components/bot/CePiBotPanel";
 import { StoryViewer } from "@/app/components/feed/StoryViewer";
 import { ExpBar } from "@/app/components/gamification/ExpBar";
@@ -12,6 +12,7 @@ import { FlameIcon } from "@/app/components/gamification/FlameIcon";
 import { LevelUpModal } from "@/app/components/gamification/LevelUpModal";
 import { CommentsModal } from "@/app/components/modals/CommentsModal";
 import { CreateModal } from "@/app/components/modals/CreateModal";
+import { ClassGradesModal } from "@/app/components/modals/ClassGradesModal";
 import { GradesModal } from "@/app/components/modals/GradesModal";
 import { ReportModal } from "@/app/components/modals/ReportModal";
 import { AccountTab } from "@/app/components/tabs/AccountTab";
@@ -22,15 +23,15 @@ import { FeedTab } from "@/app/components/tabs/FeedTab";
 import { LibraryTab } from "@/app/components/tabs/LibraryTab";
 import { ProgressTab } from "@/app/components/tabs/ProgressTab";
 import { ShortsTab } from "@/app/components/tabs/ShortsTab";
-import { TEACHERS, INIT_STORIES, INIT_POSTS } from "@/app/data/feed";
+import { TEACHERS } from "@/app/data/feed";
 import { ACTIVITIES_DATA } from "@/app/data/school";
-import type { Tab, CreateType, AppUser, Activity, ExpEntry, Story, Post } from "@/app/types";
+import type { Tab, CreateType, AppUser, Activity, ExpEntry, Story, Post, SharedFeed, NotificationTarget } from "@/app/types";
 import { getFireLevel, getExpPct } from "@/app/utils/gamification";
+import { buildReport } from "@/app/utils/reports";
 
-export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }) {
+export function AppShell({ user, onLogout, feed }: { user:AppUser; onLogout:()=>void; feed:SharedFeed }) {
   const [tab, setTab] = useState<Tab>("feed");
-  const [posts, setPosts] = useState<Post[]>(INIT_POSTS);
-  const [stories, setStories] = useState<Story[]>(INIT_STORIES);
+  const { posts, setPosts, stories, setStories } = feed;
   const [activeStory, setActiveStory] = useState<Story|null>(null);
   const [commentPost, setCommentPost] = useState<Post|null>(null);
   const [reportPost, setReportPost] = useState<Post|null>(null);
@@ -39,7 +40,7 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
   const [showBot, setShowBot] = useState(false);
   const [showGrades, setShowGrades] = useState(false);
   const [activities, setActivities] = useState<Activity[]>(ACTIVITIES_DATA);
-  const [notifications, setNotifications] = useState(STUDENT_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState(NOTIFICATIONS_BY_ROLE[user.role]);
 
   const [exp, setExp] = useState(87);
   const [expHistory, setExpHistory] = useState<ExpEntry[]>([
@@ -94,6 +95,11 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
   const handleActivityComplete = (id:number) => {
     setActivities(acts => acts.map(a => a.id===id ? {...a, status:"concluida"} : a));
     gainExp(20, "Atividade concluída!");
+  };
+
+  const openNotificationTarget = (target:NotificationTarget) => {
+    if (target==="grades") setShowGrades(true);
+    else if (baseNav.some(n => n.key===target)) setTab(target as Tab);
   };
 
   const currentLvl = getFireLevel(exp);
@@ -164,7 +170,7 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
                 <span className="text-xs font-black text-foreground">{exp}</span>
               </button>
             )}
-            <NotificationsBell notifications={notifications} onChange={setNotifications} onNavigate={setTab} />
+            <NotificationsBell notifications={notifications} onChange={setNotifications} onNavigate={openNotificationTarget} />
           </div>
         </header>
         <div className="flex min-h-0 flex-1 overflow-hidden">
@@ -211,9 +217,11 @@ export function AppShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }
 
       {activeStory && <StoryViewer story={activeStory} all={stories} onClose={() => setActiveStory(null)} onNav={id => { const s=stories.find(x=>x.id===id); if(s) handleStory(s); }} onReport={() => { setReportStory(activeStory); setActiveStory(null); }} />}
       {commentPost && <CommentsModal post={commentPost} user={user} onClose={() => setCommentPost(null)} onAdd={handleAddComment} onGainExp={gainExp} />}
-      {(reportPost||reportStory) && <ReportModal contentType={reportPost?"post":"story"} onClose={() => { setReportPost(null); setReportStory(null); }} />}
+      {(reportPost||reportStory) && <ReportModal contentType={reportPost?"post":"story"} onClose={() => { setReportPost(null); setReportStory(null); }} onSubmit={(reason, detail) => feed.setReports(rs => [buildReport({ post:reportPost, story:reportStory }, user, reason, detail), ...rs])} />}
       {showCreate && isTeacher && <CreateModal onClose={() => setShowCreate(false)} onPost={handleCreate} teacherSubject={teacherData?.subj} />}
-      {showGrades && <GradesModal user={user} onClose={() => setShowGrades(false)} />}
+      {showGrades && (isTeacher
+        ? <ClassGradesModal subject={teacherData?.subj ?? "Matemática"} onClose={() => setShowGrades(false)} />
+        : <GradesModal user={user} onClose={() => setShowGrades(false)} />)}
 
       {expToast && <ExpToast amount={expToast.amount} reason={expToast.reason} />}
       {levelUpInfo && <LevelUpModal oldLevel={levelUpInfo.oldLevel} newLevel={levelUpInfo.newLevel} exp={exp} onClose={() => setLevelUpInfo(null)} />}

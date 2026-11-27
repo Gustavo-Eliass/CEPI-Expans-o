@@ -1,15 +1,14 @@
 import { Eye, Flag, Zap, CheckCircle } from "lucide-react";
-import { COORD_AI_DECIDED_INIT } from "@/app/data/moderation";
 import type { ReportItem } from "@/app/types";
 
-export function CoordDashboard({ reports, aiReports }: { reports:ReportItem[]; aiReports:ReportItem[] }) {
+export function CoordDashboard({ reports, aiReports, aiDecidedCount }: { reports:ReportItem[]; aiReports:ReportItem[]; aiDecidedCount:number }) {
   const pending   = reports.filter(r => !r.resolved).length;
   const aiPending = aiReports.filter(r => !r.resolved).length;
   const stats = [
     { label:"Denúncias pendentes",           v:pending,                    Icon:Flag,        col:"#c0392b", bg:"#faeae9" },
     { label:"Sinalizadas pela IA (revisar)",  v:aiPending,                  Icon:Zap,         col:"#d97706", bg:"#fef3c7" },
-    { label:"Decididas pela IA (7 dias)",     v:COORD_AI_DECIDED_INIT.length, Icon:Eye,       col:"#1a5276", bg:"#e8f0f6" },
-    { label:"Resolvidas hoje",                v:reports.filter(r=>r.resolved).length, Icon:CheckCircle, col:"#0a6b38", bg:"#e6f4ec" },
+    { label:"Decididas pela IA (7 dias)",     v:aiDecidedCount, Icon:Eye,       col:"#1a5276", bg:"#e8f0f6" },
+    { label:"Resolvidas hoje",                v:[...reports, ...aiReports].filter(r=>r.resolved).length, Icon:CheckCircle, col:"#0a6b38", bg:"#e6f4ec" },
   ];
   const recent = [...reports, ...aiReports].slice(0, 5);
   return (

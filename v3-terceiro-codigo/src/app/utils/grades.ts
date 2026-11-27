@@ -5,3 +5,8 @@ export function gradeColor(g: number|null) {
   if (g>=5) return "text-yellow-700 font-bold";
   return "text-red-600 font-bold";
 }
+
+export function average(grades: (number|null)[]) {
+  const filled = grades.filter((g): g is number => g !== null);
+  return filled.length ? filled.reduce((a, b) => a + b, 0) / filled.length : null;
+}

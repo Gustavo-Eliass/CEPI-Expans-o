@@ -2,9 +2,8 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp, RefreshCw, Info, CheckCircle } from "lucide-react";
 import type { AIDecidedItem } from "@/app/types";
 
-export function CoordAIDecided({ items, setItems }: { items:AIDecidedItem[]; setItems:(r:AIDecidedItem[])=>void }) {
+export function CoordAIDecided({ items, onReopen }: { items:AIDecidedItem[]; onReopen:(item:AIDecidedItem)=>void }) {
   const [expanded, setExpanded] = useState<number|null>(null);
-  const [reopenedIds, setReopenedIds] = useState<number[]>([]);
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="max-w-[860px] mx-auto py-6 px-6 space-y-4">
@@ -38,10 +37,10 @@ export function CoordAIDecided({ items, setItems }: { items:AIDecidedItem[]; set
                       ))}
                     </div>
                   </div>
-                  {reopenedIds.includes(item.id) ? (
-                    <div className="flex items-center gap-2 text-xs text-primary font-semibold"><CheckCircle className="w-4 h-4" /> Item reaberto para revisão humana.</div>
+                  {item.reopened ? (
+                    <div className="flex items-center gap-2 text-xs text-primary font-semibold"><CheckCircle className="w-4 h-4" /> Item reaberto: está na aba “Sinalizadas pela IA”.</div>
                   ) : (
-                    <button onClick={() => setReopenedIds(ids => [...ids, item.id])} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary font-semibold transition-colors">
+                    <button onClick={() => onReopen(item)} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary font-semibold transition-colors">
                       <RefreshCw className="w-3.5 h-3.5" /> Reabrir para revisão humana
                     </button>
                   )}

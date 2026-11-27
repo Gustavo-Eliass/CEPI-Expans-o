@@ -2,7 +2,7 @@ export type Role = "student" | "teacher" | "guardian" | "coordinator";
 
 export type Tab = "feed" | "shorts" | "library" | "community" | "account" | "agenda" | "progress" | "activities";
 
-export type CoordTab = "dashboard" | "reports" | "ai-flagged" | "ai-decided";
+export type CoordTab = "dashboard" | "feed" | "reports" | "ai-flagged" | "ai-decided";
 
 export type CreateType = "post" | "story" | "library";
 
@@ -43,6 +43,12 @@ export interface AIDecidedItem {
 
 export type LibrarySubject = { col:string; bg:string; icon:string; bimesters:{ name:string; topics:{ name:string; files:{ n:string; type:"pdf"|"video" }[] }[] }[] };
 
+export interface SharedFeed {
+  posts: Post[]; setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
+  stories: Story[]; setStories: React.Dispatch<React.SetStateAction<Story[]>>;
+  reports: ReportItem[]; setReports: React.Dispatch<React.SetStateAction<ReportItem[]>>;
+}
+
 export type BotMode = "chat" | "quiz";
 
 export type BotMsg = { id:number; me:boolean; text:string; source?:string };
@@ -56,5 +62,11 @@ export interface AppNotification {
   message: string;
   time: string;
   read: boolean;
-  goesTo?: Tab;
+  goesTo?: NotificationTarget;
 }
+
+export type NotificationTarget = Tab | CoordTab | "grades";
+
+export interface StudentGrades { name: string; b1: number|null; b2: number|null; b3: number|null; b4: number|null; }
+
+export interface ClassGradebook { turma: string; students: StudentGrades[]; }

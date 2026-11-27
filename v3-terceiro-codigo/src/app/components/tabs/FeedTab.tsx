@@ -12,7 +12,7 @@ export function FeedTab({ user, posts, stories, onLike, onComment, onStory, onRe
   onReport:(p:Post)=>void; onReportStory:(s:Story)=>void;
   onGainExp?:(amount:number, reason:string)=>void;
 }) {
-  const isReadonly = user.role==="guardian";
+  const isReadonly = user.role==="guardian" || user.role==="coordinator";
   const handleShare = (p:Post) => onGainExp?.(8, `Compartilhou post de ${p.t.name.split(" ")[0]}`);
   return (
     <div className="flex flex-1 overflow-hidden">
@@ -22,6 +22,12 @@ export function FeedTab({ user, posts, stories, onLike, onComment, onStory, onRe
             <div className="bg-orange-50 border border-orange-200 rounded-2xl px-5 py-3 flex items-center gap-3">
               <Shield className="w-5 h-5 text-orange-600 flex-shrink-0" />
               <p className="text-sm text-orange-800 font-medium">Você está vendo o feed de <strong>{user.guardianOf}</strong> ({user.grade} {user.turma})</p>
+            </div>
+          )}
+          {user.role==="coordinator" && (
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl px-5 py-3 flex items-center gap-3">
+              <Shield className="w-5 h-5 text-blue-600 flex-shrink-0" />
+              <p className="text-sm text-blue-800 font-medium">Você está vendo o feed como <strong>coordenação</strong>. Use “Denunciar post” no menu ⋯ para enviar um item à fila de denúncias.</p>
             </div>
           )}
           <div className="bg-card border border-border rounded-2xl p-4">

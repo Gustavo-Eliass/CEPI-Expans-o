@@ -1,32 +1,59 @@
 import { useState } from "react";
-import { X, Eye, LogOut, Sparkles, Flag, BarChart2, Zap } from "lucide-react";
+import { X, Eye, LogOut, Sparkles, Flag, BarChart2, Zap, Home } from "lucide-react";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import cepiLogo from "@/imports/image.png";
 import { NotificationsBell } from "@/app/components/notifications/NotificationsBell";
-import { COORDINATOR_NOTIFICATIONS } from "@/app/data/notifications";
+import { NOTIFICATIONS_BY_ROLE } from "@/app/data/notifications";
 import { CePiBotPanel } from "@/app/components/bot/CePiBotPanel";
+import { StoryViewer } from "@/app/components/feed/StoryViewer";
+import { ReportModal } from "@/app/components/modals/ReportModal";
+import { FeedTab } from "@/app/components/tabs/FeedTab";
 import { CoordAIDecided } from "@/app/components/coordinator/CoordAIDecided";
 import { CoordAIFlagged } from "@/app/components/coordinator/CoordAIFlagged";
 import { CoordDashboard } from "@/app/components/coordinator/CoordDashboard";
 import { CoordReportsQueue } from "@/app/components/coordinator/CoordReportsQueue";
-import { COORD_REPORTS_INIT, COORD_AI_FLAGGED_INIT, COORD_AI_DECIDED_INIT } from "@/app/data/moderation";
-import type { CoordTab, AppUser, ReportItem, AIDecidedItem } from "@/app/types";
+import { COORD_AI_FLAGGED_INIT, COORD_AI_DECIDED_INIT } from "@/app/data/moderation";
+import { buildReport } from "@/app/utils/reports";
+import type { CoordTab, AppUser, ReportItem, AIDecidedItem, SharedFeed, NotificationTarget, Post, Story } from "@/app/types";
 
-export function CoordinatorShell({ user, onLogout }: { user:AppUser; onLogout:()=>void }) {
+export function CoordinatorShell({ user, onLogout, feed }: { user:AppUser; onLogout:()=>void; feed:SharedFeed }) {
+  const { posts, stories, setStories, reports, setReports } = feed;
   const [tab, setTab] = useState<CoordTab>("dashboard");
-  const [reports, setReports] = useState<ReportItem[]>(COORD_REPORTS_INIT);
   const [aiReports, setAiReports] = useState<ReportItem[]>(COORD_AI_FLAGGED_INIT);
   const [aiDecided, setAiDecided] = useState<AIDecidedItem[]>(COORD_AI_DECIDED_INIT);
   const [showBot, setShowBot] = useState(false);
-  const [notifications, setNotifications] = useState(COORDINATOR_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState(NOTIFICATIONS_BY_ROLE.coordinator);
+  const [activeStory, setActiveStory] = useState<Story|null>(null);
+  const [reportPost, setReportPost] = useState<Post|null>(null);
+  const [reportStory, setReportStory] = useState<Story|null>(null);
   const ini = user.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
 
   const navItems: { key:CoordTab; Icon:React.ElementType; label:string; badge?:number }[] = [
     { key:"dashboard",  Icon:BarChart2, label:"Visão geral" },
+    { key:"feed",       Icon:Home,      label:"Feed" },
     { key:"reports",    Icon:Flag,      label:"Fila de denúncias",   badge:reports.filter(r=>!r.resolved).length },
     { key:"ai-flagged", Icon:Zap,       label:"Sinalizadas pela IA", badge:aiReports.filter(r=>!r.resolved).length },
     { key:"ai-decided", Icon:Eye,       label:"Decididas pela IA" },
   ];
+
+  const openNotificationTarget = (target:NotificationTarget) => {
+    if (navItems.some(n => n.key===target)) setTab(target as CoordTab);
+  };
+
+  const openStory = (story:Story) => {
+    setActiveStory(story);
+    setStories(prev => prev.map(s => s.id===story.id ? { ...s, viewed:true } : s));
+  };
+
+  const reopenForReview = (item:AIDecidedItem) => {
+    setAiDecided(items => items.map(i => i.id===item.id ? { ...i, reopened:true } : i));
+    setAiReports(items => [{
+      id: item.id, type:"message", content:item.content, author:item.author, turma:item.turma,
+      reason:`Reaberto pela coordenação — decisão automática: ${item.action} (${item.confidence}%)`,
+      date:"agora", source:"ai-flagged", resolved:false, confidence:"ambíguo",
+      aiNote:`Critério usado pela IA: ${item.reason}`,
+    }, ...items]);
+  };
 
   return (
     <div className="flex h-dvh min-h-0 overflow-hidden bg-background pt-safe">
@@ -39,7 +66,7 @@ export function CoordinatorShell({ user, onLogout }: { user:AppUser; onLogout:()
           {navItems.map(({ key, Icon, label, badge }) => {
             const active = tab === key;
             return (
-              <button key={key} onClick={() => setTab(key)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${active ? "bg-secondary text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
+              <button key={key} onClick={() => setTab(key)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm font-semibold transition-colors ${active ? "bg-secondary text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
                 <Icon className="w-5 h-5 flex-shrink-0" />
                 {label}
                 {badge !== undefined && badge > 0 && <span className="ml-auto text-xs bg-red-500 text-white rounded-full px-1.5 py-0.5 min-w-[20px] text-center">{badge}</span>}
@@ -48,10 +75,10 @@ export function CoordinatorShell({ user, onLogout }: { user:AppUser; onLogout:()
           })}
         </nav>
         <div className="border-t border-border p-3">
-          <div className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-muted cursor-pointer">
+          <div className="flex items-center gap-3 px-2 py-2 rounded-xl">
             <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold flex-shrink-0">{ini}</div>
-            <div className="flex-1 min-w-0"><p className="text-sm font-bold text-foreground truncate">{user.name}</p><p className="text-xs text-muted-foreground">Coordenador</p></div>
-            <button onClick={onLogout} title="Sair"><LogOut className="w-4 h-4 text-muted-foreground" /></button>
+            <div className="flex-1 min-w-0"><p className="text-sm font-bold text-foreground truncate">{user.name}</p><p className="text-xs text-muted-foreground">Coordenadora</p></div>
+            <button onClick={onLogout} title="Sair" aria-label="Sair da conta"><LogOut className="w-4 h-4 text-muted-foreground" /></button>
           </div>
         </div>
       </aside>
@@ -59,15 +86,19 @@ export function CoordinatorShell({ user, onLogout }: { user:AppUser; onLogout:()
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <header className="flex flex-shrink-0 items-center justify-between gap-3 border-b border-border bg-card px-4 py-3 sm:px-6">
           <div className="min-w-0"><h1 className="truncate font-black text-foreground text-lg">{navItems.find(n=>n.key===tab)?.label}</h1><p className="hidden text-xs text-muted-foreground sm:block">Colégio CEPI Expansão · Painel de moderação</p></div>
-          <NotificationsBell notifications={notifications} onChange={setNotifications} />
+          <div className="flex items-center gap-2">
+            <NotificationsBell notifications={notifications} onChange={setNotifications} onNavigate={openNotificationTarget} />
+            <button onClick={onLogout} aria-label="Sair da conta" className="md:hidden w-9 h-9 rounded-full bg-muted flex items-center justify-center hover:bg-secondary transition-colors"><LogOut className="w-4 h-4 text-muted-foreground" /></button>
+          </div>
         </header>
         <div className="flex min-h-0 flex-1 overflow-hidden">
-          {tab==="dashboard"  && <CoordDashboard reports={reports} aiReports={aiReports} />}
+          {tab==="dashboard"  && <CoordDashboard reports={reports} aiReports={aiReports} aiDecidedCount={aiDecided.length} />}
+          {tab==="feed"       && <FeedTab user={user} posts={posts} stories={stories} onLike={() => {}} onComment={() => {}} onStory={openStory} onReport={setReportPost} onReportStory={setReportStory} />}
           {tab==="reports"    && <CoordReportsQueue reports={reports} setReports={setReports} coordName={user.name} />}
           {tab==="ai-flagged" && <CoordAIFlagged items={aiReports} setItems={setAiReports} coordName={user.name} />}
-          {tab==="ai-decided" && <CoordAIDecided items={aiDecided} setItems={setAiDecided} />}
+          {tab==="ai-decided" && <CoordAIDecided items={aiDecided} onReopen={reopenForReview} />}
         </div>
-        <nav aria-label="Navegação da coordenação" className="grid flex-shrink-0 grid-cols-4 border-t border-border bg-card pb-safe md:hidden">
+        <nav aria-label="Navegação da coordenação" className="grid flex-shrink-0 grid-cols-5 border-t border-border bg-card pb-safe md:hidden">
           {navItems.map(({ key, Icon, label, badge }) => {
             const active = tab === key;
             return (
@@ -92,6 +123,9 @@ export function CoordinatorShell({ user, onLogout }: { user:AppUser; onLogout:()
         {showBot ? <X className="w-6 h-6 text-white" /> : <Sparkles className="w-6 h-6 text-white" />}
       </button>
       {showBot && <CePiBotPanel onClose={() => setShowBot(false)} user={user} />}
+
+      {activeStory && <StoryViewer story={activeStory} all={stories} onClose={() => setActiveStory(null)} onNav={id => { const s=stories.find(x=>x.id===id); if (s) openStory(s); }} onReport={() => { setReportStory(activeStory); setActiveStory(null); }} />}
+      {(reportPost||reportStory) && <ReportModal contentType={reportPost?"post":"story"} onClose={() => { setReportPost(null); setReportStory(null); }} onSubmit={(reason, detail) => setReports(rs => [buildReport({ post:reportPost, story:reportStory }, user, reason, detail), ...rs])} />}
     </div>
   );
 }

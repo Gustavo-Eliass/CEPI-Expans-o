@@ -2,29 +2,27 @@ import { useState } from "react";
 import { User, GraduationCap, Check, Shield, Baby } from "lucide-react";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import cepiLogo from "@/imports/image.png";
+import { DEMO_ACCOUNTS, describeAccount } from "@/app/data/accounts";
 import { GUARDIANS } from "@/app/data/feed";
 import type { Role, AppUser } from "@/app/types";
 
+const ROLES: { r:Role; label:string; Icon:React.ElementType; desc:string }[] = [
+  { r:"student",     label:"Sou Aluno",       Icon:User,          desc:"Feed e conteúdos" },
+  { r:"teacher",     label:"Sou Professor",   Icon:GraduationCap, desc:"Publique turmas" },
+  { r:"guardian",    label:"Sou Responsável", Icon:Baby,          desc:"Acompanhe filhos" },
+  { r:"coordinator", label:"Sou Coordenador", Icon:Shield,        desc:"Moderação" },
+];
+
 export function LoginScreen({ onLogin }: { onLogin:(u:AppUser)=>void }) {
   const [role, setRole] = useState<Role|null>(null);
-  const [name, setName] = useState("");
-  const [grade, setGrade] = useState("5º Ano");
-  const [turma, setTurma] = useState("B");
-  const [guardian, setGuardian] = useState("");
-  const [child, setChild] = useState<{ name:string; grade:string; turma:string }|null>(null);
-  const guardianData = GUARDIANS.find(g => g.name === guardian);
+  const account = role ? DEMO_ACCOUNTS[role] : null;
+  const guardianChildren = GUARDIANS.find(g => g.name === DEMO_ACCOUNTS.guardian.name)?.children ?? [];
+  const [child, setChild] = useState(guardianChildren[0]);
 
-  const handleLogin = () => {
-    if (role==="guardian") { if (!guardian || !child) return; onLogin({ name:guardian, role:"guardian", grade:child.grade, turma:child.turma, guardianOf:child.name }); }
-    else { if (!name.trim()) return; onLogin({ name:name.trim(), role:role!, grade, turma }); }
-  };
-
-  const roles: { r:Role; label:string; Icon:React.ElementType; desc:string }[] = [
-    { r:"student",     label:"Sou Aluno",       Icon:User,          desc:"Feed e conteúdos" },
-    { r:"teacher",     label:"Sou Professor",   Icon:GraduationCap, desc:"Publique turmas" },
-    { r:"guardian",    label:"Sou Responsável", Icon:Baby,          desc:"Acompanhe filhos" },
-    { r:"coordinator", label:"Sou Coordenador", Icon:Shield,        desc:"Moderação" },
-  ];
+  const user: AppUser|null = account && account.role === "guardian" && child
+    ? { ...account, grade:child.grade, turma:child.turma, guardianOf:child.name }
+    : account;
+  const ini = user ? user.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() : "";
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-[#032815] via-[#054022] to-[#0a6b38]">
@@ -45,11 +43,11 @@ export function LoginScreen({ onLogin }: { onLogin:(u:AppUser)=>void }) {
             <div><h1 className="font-black text-foreground text-xl">EduLink</h1><p className="text-xs text-muted-foreground">Colégio CEPI Expansão</p></div>
           </div>
           <h2 className="font-black text-foreground text-2xl mb-1">Bem-vindo!</h2>
-          <p className="text-muted-foreground text-sm mb-5">Como você deseja entrar?</p>
+          <p className="text-muted-foreground text-sm mb-5">Escolha um perfil para entrar na demonstração.</p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-5">
-            {roles.map(({ r, label, Icon, desc }) => (
-              <button key={r} onClick={() => { setRole(r); setGuardian(""); setChild(null); }}
+            {ROLES.map(({ r, label, Icon, desc }) => (
+              <button key={r} onClick={() => setRole(r)}
                 className={`rounded-2xl p-3 border-2 text-left transition-all ${role===r ? "border-primary bg-secondary" : "border-border bg-muted/30 hover:border-primary/40"}`}>
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-2 ${role===r ? "bg-primary" : "bg-muted"}`}>
                   <Icon className={`w-5 h-5 ${role===r ? "text-white" : "text-muted-foreground"}`} />
@@ -60,60 +58,36 @@ export function LoginScreen({ onLogin }: { onLogin:(u:AppUser)=>void }) {
             ))}
           </div>
 
-          {role && role!=="guardian" && (
+          {user && (
             <div className="flex flex-col gap-3">
-              {role==="coordinator" && <div className="bg-primary/5 border border-primary/20 rounded-xl px-4 py-3 flex items-center gap-2"><Shield className="w-4 h-4 text-primary flex-shrink-0" /><p className="text-xs text-primary font-medium">Acesso ao painel de moderação e denúncias</p></div>}
-              <div>
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 block">Nome</label>
-                <input className="w-full rounded-xl border border-border bg-input-background px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/40"
-                  placeholder={role==="student" ? "Ex: João Victor" : role==="coordinator" ? "Ex: Maria Coordenadora" : "Ex: Carlos Silva"}
-                  value={name} onChange={e => setName(e.target.value)} />
-              </div>
-              {role==="student" && (
-                <div className="grid grid-cols-2 gap-3">
-                  {([["Série", grade, setGrade, ["3º Ano","4º Ano","5º Ano","6º Ano","7º Ano","8º Ano","9º Ano"]],["Turma", turma, setTurma, ["A","B","C","D"]]] as [string,string,(v:string)=>void,string[]][]).map(([lbl, val, fn, opts]) => (
-                    <div key={lbl}>
-                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 block">{lbl}</label>
-                      <select className="w-full rounded-xl border border-border bg-input-background px-3 py-3 text-sm outline-none" value={val} onChange={e => fn(e.target.value)}>
-                        {opts.map(o => <option key={o}>{o}</option>)}
-                      </select>
-                    </div>
-                  ))}
+              <div className="flex items-center gap-3 rounded-2xl border border-border bg-muted/30 px-4 py-3">
+                <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white font-bold flex-shrink-0">{ini}</div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-bold text-foreground truncate">{user.role==="teacher" ? `Prof. ${user.name}` : user.name}</p>
+                  <p className="text-xs text-muted-foreground">{describeAccount(user)}</p>
                 </div>
-              )}
-              <button onClick={handleLogin} disabled={!name.trim()} className="w-full bg-primary text-white rounded-xl py-3.5 font-bold text-sm disabled:opacity-40 hover:bg-[#085a30] transition-colors mt-1">Entrar →</button>
-            </div>
-          )}
-
-          {role==="guardian" && (
-            <div className="flex flex-col gap-3">
-              <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 flex items-center gap-2"><Shield className="w-4 h-4 text-orange-600 flex-shrink-0" /><p className="text-xs text-orange-800 font-medium">Acesso exclusivo para responsáveis cadastrados</p></div>
-              <div>
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 block">Selecione seu nome</label>
-                <select className="w-full rounded-xl border border-border bg-input-background px-3 py-3 text-sm outline-none" value={guardian} onChange={e => { setGuardian(e.target.value); setChild(null); }}>
-                  <option value="">Escolha o responsável...</option>
-                  {GUARDIANS.map(g => <option key={g.name} value={g.name}>{g.name}</option>)}
-                </select>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 rounded-full px-2 py-1 flex-shrink-0">Demo</span>
               </div>
-              {guardianData && (
+
+              {user.role==="guardian" && guardianChildren.length > 1 && (
                 <div>
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Selecione o filho(a)</label>
-                  <div className="space-y-2">
-                    {guardianData.children.map(c => (
-                      <button key={c.name} onClick={() => setChild(c)} className={`w-full flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition-all ${child?.name===c.name ? "border-primary bg-secondary" : "border-border hover:border-primary/40"}`}>
-                        <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm flex-shrink-0">{c.name[0]}</div>
-                        <div><p className={`font-bold text-sm ${child?.name===c.name ? "text-primary" : "text-foreground"}`}>{c.name}</p><p className="text-xs text-muted-foreground">{c.grade} · Turma {c.turma}</p></div>
-                        {child?.name===c.name && <Check className="w-5 h-5 text-primary ml-auto" />}
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Acompanhar</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {guardianChildren.map(c => (
+                      <button key={c.name} onClick={() => setChild(c)} className={`flex items-center gap-2 rounded-xl border-2 px-3 py-2 text-left transition-all ${child?.name===c.name ? "border-primary bg-secondary" : "border-border hover:border-primary/40"}`}>
+                        <div className="min-w-0 flex-1"><p className={`font-bold text-sm ${child?.name===c.name ? "text-primary" : "text-foreground"}`}>{c.name}</p><p className="text-xs text-muted-foreground">{c.grade} · Turma {c.turma}</p></div>
+                        {child?.name===c.name && <Check className="w-4 h-4 text-primary flex-shrink-0" />}
                       </button>
                     ))}
                   </div>
                 </div>
               )}
-              <button onClick={handleLogin} disabled={!guardian || !child} className="w-full bg-primary text-white rounded-xl py-3.5 font-bold text-sm disabled:opacity-40 hover:bg-[#085a30] transition-colors">Entrar como responsável →</button>
+
+              <button onClick={() => onLogin(user)} className="w-full bg-primary text-white rounded-xl py-3.5 font-bold text-sm hover:bg-[#085a30] transition-colors mt-1">Entrar →</button>
             </div>
           )}
 
-          <p className="text-center text-xs text-muted-foreground mt-6">Colégio CEPI Expansão · 2025</p>
+          <p className="text-center text-xs text-muted-foreground mt-6">Colégio CEPI Expansão · Contas de demonstração</p>
         </div>
       </div>
     </div>

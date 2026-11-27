@@ -10,7 +10,6 @@ export function CoordReportsQueue({ reports, setReports, coordName }: { reports:
   const handleDecide = (id:number, action:"approved"|"removed", note:string) => {
     const now = new Date().toLocaleTimeString("pt-BR", { hour:"2-digit", minute:"2-digit" });
     setReports(reports.map(r => r.id===id ? { ...r, resolved:true, decision:{ action, note, by:coordName, at:`hoje às ${now}` } } : r));
-    setSelected(null);
   };
   return (
     <div className="flex-1 overflow-y-auto">

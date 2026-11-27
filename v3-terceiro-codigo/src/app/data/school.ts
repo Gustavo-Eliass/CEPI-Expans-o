@@ -1,5 +1,5 @@
 import { TEACHERS } from "@/app/data/feed";
-import type { Activity } from "@/app/types";
+import type { Activity, ClassGradebook } from "@/app/types";
 
 export const GRADES_DATA = [
   { subj:"Matemática", col:"#0a6b38", b1:8.5, b2:7.8, b3:null, b4:null },
@@ -10,6 +10,29 @@ export const GRADES_DATA = [
   { subj:"Artes",      col:"#7d5a00", b1:10,  b2:9.5, b3:null, b4:null },
   { subj:"Ed. Física", col:"#0891b2", b1:9.0, b2:10,  b3:null, b4:null },
   { subj:"Inglês",     col:"#65a30d", b1:7.0, b2:7.5, b3:null, b4:null },
+];
+
+export const CLASS_GRADEBOOKS: ClassGradebook[] = [
+  { turma:"5º Ano B", students:[
+    { name:"Ana Clara",  b1:9.5, b2:9.0, b3:null, b4:null },
+    { name:"Arthur",     b1:8.5, b2:7.8, b3:null, b4:null },
+    { name:"Gabriel M.", b1:6.0, b2:5.5, b3:null, b4:null },
+    { name:"João V.",    b1:8.0, b2:8.5, b3:null, b4:null },
+    { name:"Kalebe",     b1:7.0, b2:6.5, b3:null, b4:null },
+    { name:"Larissa P.", b1:9.0, b2:9.5, b3:null, b4:null },
+    { name:"Pedro H.",   b1:4.5, b2:6.0, b3:null, b4:null },
+  ] },
+  { turma:"6º Ano C", students:[
+    { name:"Beatriz L.", b1:8.0, b2:8.5, b3:null, b4:null },
+    { name:"Maria F.",   b1:9.0, b2:8.0, b3:null, b4:null },
+    { name:"Rafael S.",  b1:5.0, b2:4.0, b3:null, b4:null },
+    { name:"Sofia R.",   b1:7.5, b2:7.0, b3:null, b4:null },
+  ] },
+  { turma:"7º Ano A", students:[
+    { name:"Lucas T.",   b1:6.5, b2:7.0, b3:null, b4:null },
+    { name:"Renato S.",  b1:7.0, b2:7.5, b3:null, b4:null },
+    { name:"Vitória A.", b1:10,  b2:9.5, b3:null, b4:null },
+  ] },
 ];
 
 export const AGENDA_DATA = {

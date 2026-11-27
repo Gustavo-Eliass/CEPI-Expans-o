@@ -2,7 +2,7 @@ import { useState } from "react";
 import { X, Check, Flag, Shield } from "lucide-react";
 import { REPORT_REASONS } from "@/app/data/moderation";
 
-export function ReportModal({ contentType, onClose }: { contentType:"post"|"story"|"message"; onClose:()=>void }) {
+export function ReportModal({ contentType, onClose, onSubmit }: { contentType:"post"|"story"|"message"; onClose:()=>void; onSubmit?:(reason:string, detail:string)=>void }) {
   const [reason, setReason] = useState("");
   const [detail, setDetail] = useState("");
   const [sent, setSent] = useState(false);
@@ -47,7 +47,7 @@ export function ReportModal({ contentType, onClose }: { contentType:"post"|"stor
             <p className="text-sm font-bold text-foreground mb-1">Detalhes (opcional)</p>
             <textarea className="w-full rounded-xl border border-border bg-input-background px-4 py-3 text-sm outline-none resize-none" rows={3} placeholder="Descreva o problema..." value={detail} onChange={e => setDetail(e.target.value)} />
           </div>
-          <button onClick={() => reason && setSent(true)} disabled={!reason} className="w-full bg-orange-500 text-white rounded-xl py-3 font-bold text-sm disabled:opacity-40 hover:bg-orange-600 transition-colors">Enviar denúncia →</button>
+          <button onClick={() => { if (!reason) return; onSubmit?.(reason, detail.trim()); setSent(true); }} disabled={!reason} className="w-full bg-orange-500 text-white rounded-xl py-3 font-bold text-sm disabled:opacity-40 hover:bg-orange-600 transition-colors">Enviar denúncia →</button>
         </div>
       </div>
     </div>

@@ -33,7 +33,7 @@ export function AccountTab({ user, onLogout, onShowGrades }: { user:AppUser; onL
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
           <button onClick={onShowGrades} className="w-full flex items-center gap-4 px-5 py-4 hover:bg-muted/40 transition-colors border-b border-border">
             <div className="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center flex-shrink-0"><Award className="w-5 h-5 text-yellow-700" /></div>
-            <div className="flex-1 text-left"><p className="font-semibold text-foreground text-sm">{isGuardian ? `Boletim de ${user.guardianOf}` : "Minhas Notas"}</p><p className="text-xs text-muted-foreground">Notas do semestre · 2025</p></div>
+            <div className="flex-1 text-left"><p className="font-semibold text-foreground text-sm">{isTeacher ? "Notas das turmas" : isGuardian ? `Boletim de ${user.guardianOf}` : "Minhas Notas"}</p><p className="text-xs text-muted-foreground">{isTeacher ? "Notas de cada aluno por turma · 2025" : "Notas do semestre · 2025"}</p></div>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
           {[
